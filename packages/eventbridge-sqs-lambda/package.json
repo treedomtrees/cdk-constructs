@@ -1,0 +1,21 @@
+{
+  "name": "@treedom/cdk-constructs-eventbridge-sqs-lambda",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "type": "module",
+  "devDependencies": {},
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/treedomtrees/cdk-constructs.git"
+  },
+  "author": "Treedom Team <it@treedom.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/treedomtrees/cdk-constructs/issues"
+  },
+  "homepage": "https://github.com/treedomtrees/cdk-constructs#readme"
+}

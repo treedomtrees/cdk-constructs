@@ -1,0 +1,19 @@
+{
+  "name": "@treedom/cdk-constructs",
+  "version": "1.0.0",
+  "description": "Collection of AWS CDK Constructs",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/treedomtrees/cdk-constructs.git"
+  },
+  "author": "Treedom Team <it@treedom.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/treedomtrees/cdk-constructs/issues"
+  },
+  "homepage": "https://github.com/treedomtrees/cdk-constructs#readme",
+  "devDependencies": {
+    "typescript": "5.6.3"
+  },
+  "workspaces": ["packages/*"]
+}
