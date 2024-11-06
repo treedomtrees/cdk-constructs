@@ -6,7 +6,8 @@
   "devDependencies": {},
   "scripts": {
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublish": "npm run build",
+    "publish": "npm publish --access public"
   },
   "repository": {
     "type": "git",
