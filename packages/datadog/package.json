@@ -6,9 +6,8 @@
   "scripts": {
     "clean": "rimraf ./lib",
     "build": "npm run clean && tsc --project ./tsconfig.build.json",
-    "prerelease": "npm run build",
-    "release:check": "npm publish --dry-run",
-    "release": "npm publish --access public",
+    "prepublish": "npm run build",
+    "publish:check": "npm publish --dry-run",
     "test": "borp --coverage"
   },
   "repository": {

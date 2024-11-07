@@ -5,7 +5,7 @@ import * as cdk from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { DatadogLambda } from "datadog-cdk-constructs-v2";
 
-import { AddDatadogToLambdas } from "../src/lambdaAspect.js";
+import { AddDatadogToLambdas } from "../src/lambda-aspect.js";
 
 test("should set envs and layers to all lambdas in stack", async (t) => {
   await t.test("when extensionLayerVersion is true", () => {

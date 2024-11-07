@@ -6,7 +6,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import { Queue } from "aws-cdk-lib/aws-sqs";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 
-import { LambdaMaxScalingAspect } from "../src/scalingAspect.js";
+import { LambdaMaxScalingAspect } from "../src/scaling-aspect.js";
 
 test("should set error annotation when maxConcurrency is over threshold", () => {
   const app = new cdk.App();
