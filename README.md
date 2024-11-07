@@ -107,8 +107,4 @@ Additionally, you can integrate the Treedom GitHub badge into your repository to
 
 Together, we can make a lasting impact! 🌍💚
 
-## Acknowledgements
-
-- The Treedom development team for their ongoing contributions and maintenance.
-- The AWS CDK team for providing the foundation upon which these constructs are built.
 
