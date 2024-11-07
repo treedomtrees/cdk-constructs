@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
-    "prepublish": "npm run build",
-    "publish": "npm publish --access public",
+    "prerelease": "npm run build",
+    "release:check": "npm publish --dry-run",
+    "release": "npm publish --access public",
     "test": "borp --coverage"
   },
   "repository": {
