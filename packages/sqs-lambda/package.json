@@ -1,0 +1,27 @@
+{
+  "name": "@treedom/cdk-constructs-sqs-lambda",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "prepublish": "npm run build",
+    "publish": "npm publish --access public",
+    "test": "borp --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/treedomtrees/cdk-constructs.git"
+  },
+  "author": "Treedom Team <it@treedom.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/treedomtrees/cdk-constructs/issues"
+  },
+  "homepage": "https://github.com/treedomtrees/cdk-constructs#readme",
+  "dependencies": {
+    "@treedom/cdk-constructs-datadog": "^1.0.0",
+    "aws-cdk-lib": "^2.165.0",
+    "constructs": "^10.4.2"
+  }
+}
