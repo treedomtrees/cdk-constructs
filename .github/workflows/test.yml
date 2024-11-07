@@ -1,14 +1,30 @@
 name: Test packages
 on:
-  push:
-    paths-ignore:
-      - '*.md'
   pull_request:
     paths-ignore:
       - '*.md'
 
 jobs:
-  build:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check linting
+        run: npm run lint
+
+      - name: Build packages
+        run: npm run build --workspaces --if-present
+
+      - name: Run tests
+        run: npm run test --workspaces --if-present
+  check-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,5 +33,6 @@ jobs:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
       - run: npm install
-      - run: npm run lint
-      - run: npm run test --workspaces --if-present
+      - run: npm publish --workspaces --if-present --access public --dry-run
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

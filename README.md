@@ -71,16 +71,6 @@ Note: Build and test scripts are package-specific. Refer to individual package.j
 7. Commit your changes and push to your branch.
 8. Create a pull request for review.
 
-### Publishing
-
-Each package can be published separately. To publish a new version of a package:
-
-1. Navigate to the package directory.
-2. Update the version in `package.json`.
-3. Run `npm run build` to ensure the latest changes are built.
-4. Run `npm run prepublish` to prepare the package for publishing.
-5. Run `npm run publish` to publish the package to npm.
-
 Ensure you have the necessary permissions to publish to the @treedom organization on npm.
 
 ## Versioning
@@ -93,7 +83,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contributing
 
-We welcome contributions from the community! Please read our [contributing guidelines](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+We welcome contributions from the community! Please read our [contributing guidelines](https://github.com/treedomtrees/.github/blob/main/CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## Support
 
