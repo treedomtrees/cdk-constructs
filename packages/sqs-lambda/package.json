@@ -4,7 +4,8 @@
   "main": "lib/index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc --project ./tsconfig.build.json",
+    "clean": "rimraf ./lib",
+    "build": "npm run clean && tsc --project ./tsconfig.build.json",
     "prerelease": "npm run build",
     "release:check": "npm publish --dry-run",
     "release": "npm publish --access public",
@@ -21,8 +22,14 @@
   },
   "homepage": "https://github.com/treedomtrees/cdk-constructs#readme",
   "dependencies": {
-    "@treedom/cdk-constructs-datadog": "^1.0.0",
     "aws-cdk-lib": "^2.165.0",
     "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "borp": "^0.18.0",
+    "esbuild": "^0.24.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.6.3"
   }
 }
