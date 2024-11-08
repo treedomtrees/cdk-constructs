@@ -5,7 +5,7 @@ import * as cdk from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { DatadogLambda } from "datadog-cdk-constructs-v2";
 
-import { AddDatadogToLambdas } from "../src/lambda-aspect.js";
+import { AddDatadogToLambdas } from "../src/lambdaAspect.js";
 
 test("should set envs and layers to all lambdas in stack", async (t) => {
   await t.test("when extensionLayerVersion is true", () => {
@@ -32,7 +32,7 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
       redirectHandler: true,
     });
 
-    cdk.Aspects.of(app).add(new AddDatadogToLambdas("Datadog", { datadog }));
+    cdk.Aspects.of(app).add(new AddDatadogToLambdas({ datadog }));
 
     // Prepare the stack for assertions.
     const template = Template.fromStack(testStack);
@@ -97,7 +97,7 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
       redirectHandler: true,
     });
 
-    cdk.Aspects.of(app).add(new AddDatadogToLambdas("Datadog", { datadog }));
+    cdk.Aspects.of(app).add(new AddDatadogToLambdas({ datadog }));
 
     // Prepare the stack for assertions.
     const template = Template.fromStack(testStack);

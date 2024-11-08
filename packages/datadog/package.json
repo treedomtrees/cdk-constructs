@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "main": "lib/index.js",
   "type": "module",
+  "files": [
+    "./lib"
+  ],
   "scripts": {
     "clean": "rimraf ./lib",
     "build": "npm run clean && tsc --project ./tsconfig.build.json",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "publish:check": "npm publish --dry-run",
     "test": "borp --coverage"
   },

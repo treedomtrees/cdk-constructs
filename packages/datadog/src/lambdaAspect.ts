@@ -9,10 +9,8 @@ export type DatadogLambdaAspectProps = {
 
 export class AddDatadogToLambdas implements IAspect {
   public readonly datadog: DatadogLambda;
-  public readonly name: string;
 
-  constructor(name: string, props: DatadogLambdaAspectProps) {
-    this.name = name;
+  constructor(props: DatadogLambdaAspectProps) {
     this.datadog = props.datadog;
   }
 
