@@ -1,1 +1,1 @@
-export * from "./lambdaAspect.js";
+export * from "./lambda-aspect.js";
