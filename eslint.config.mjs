@@ -6,7 +6,12 @@ import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 
 export default [
   {
-    ignores: ["coverage/*", "node_modules/*", "**/.eslintcache", "lib/*"],
+    ignores: [
+      "coverage/*",
+      "node_modules/*",
+      "**/.eslintcache",
+      "packages/*/lib/*",
+    ],
   },
   { languageOptions: { globals: globals.node } },
   pluginJs.configs.recommended,
