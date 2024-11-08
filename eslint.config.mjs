@@ -23,7 +23,7 @@ export default [
     },
   },
   {
-    files: ["**/*.ts"],
+    files: ["./packages/**/*.ts"],
     languageOptions: {
       parserOptions: {
         project: "./tsconfig.json",
