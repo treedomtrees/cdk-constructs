@@ -1,6 +1,6 @@
 import test from "node:test";
 
-import { Match, Template } from "aws-cdk-lib/assertions";
+import { Capture, Match, Template } from "aws-cdk-lib/assertions";
 import * as cdk from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { DatadogLambda } from "datadog-cdk-constructs-v2";
@@ -8,7 +8,7 @@ import { DatadogLambda } from "datadog-cdk-constructs-v2";
 import { AddDatadogToLambdas } from "../src/lambda-aspect.js";
 
 test("should set envs and layers to all lambdas in stack", async (t) => {
-  await t.test("when extensionLayerVersion is true", () => {
+  await t.test("when extensionLayerVersion is true", (t) => {
     const app = new cdk.App();
 
     const testStack = new cdk.Stack(app, "TestStack");
@@ -16,7 +16,10 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
     new lambda.Function(testStack, "NativeLambda", {
       runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromInline("handler(){}"),
-      handler: "handler.handler",
+      handler: "test.handler",
+      environment: {
+        DD_TAGS: "lambda-tag1,lambda-tag2",
+      },
     });
 
     const datadog = new DatadogLambda(testStack, `datadog`, {
@@ -28,14 +31,15 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
       captureLambdaPayload: true,
       logLevel: "warn",
       service: "my-service",
-      tags: "my-tag1,my-tag2",
-      redirectHandler: true,
+      redirectHandler: false,
     });
 
     cdk.Aspects.of(app).add(new AddDatadogToLambdas({ datadog }));
 
     // Prepare the stack for assertions.
     const template = Template.fromStack(testStack);
+
+    const tags = new Capture();
 
     template.hasResourceProperties("AWS::Lambda::Function", {
       Runtime: "nodejs20.x",
@@ -68,13 +72,16 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
           DD_LOG_LEVEL: "warn",
           DD_ENV: "test",
           DD_SERVICE: "my-service",
-          DD_TAGS: Match.stringLikeRegexp("my-tag1,my-tag2"),
+          DD_TAGS: tags,
         },
       },
     });
+
+    t.assert.match(tags.asString(), /lambda-tag1,?/);
+    t.assert.match(tags.asString(), /lambda-tag2,?/);
   });
 
-  await t.test("should set envs and layers to all lambdas in stack", () => {
+  await t.test("when extensionLayerVersion is not specified", (t) => {
     const app = new cdk.App();
 
     const testStack = new cdk.Stack(app, "TestStack");
@@ -82,7 +89,10 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
     new lambda.Function(testStack, "NativeLambda", {
       runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromInline("handler(){}"),
-      handler: "handler.handler",
+      handler: "test.handler",
+      environment: {
+        DD_TAGS: "lambda-tag1,lambda-tag2",
+      },
     });
 
     const datadog = new DatadogLambda(testStack, `datadog`, {
@@ -93,14 +103,15 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
       captureLambdaPayload: true,
       logLevel: "warn",
       service: "my-service",
-      tags: "my-tag1,my-tag2",
-      redirectHandler: true,
+      redirectHandler: false,
     });
 
     cdk.Aspects.of(app).add(new AddDatadogToLambdas({ datadog }));
 
     // Prepare the stack for assertions.
     const template = Template.fromStack(testStack);
+
+    const tags = new Capture();
 
     template.hasResourceProperties("AWS::Lambda::Function", {
       Runtime: "nodejs20.x",
@@ -123,9 +134,12 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
           DD_LOG_LEVEL: "warn",
           DD_ENV: "test",
           DD_SERVICE: "my-service",
-          DD_TAGS: Match.stringLikeRegexp("my-tag1,my-tag2"),
+          DD_TAGS: tags,
         },
       },
     });
+
+    t.assert.match(tags.asString(), /lambda-tag1,?/);
+    t.assert.match(tags.asString(), /lambda-tag2,?/);
   });
 });
