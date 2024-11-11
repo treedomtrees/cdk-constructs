@@ -30,7 +30,7 @@ test("should set all required resources", () => {
       visibilityTimeout: cdk.Duration.seconds(10),
     },
     nodejsFunctionProps: {
-      entry: path.join(import.meta.dirname, "./mock/mock.lambda.js"),
+      entry: path.join(__dirname, "./mock/mock.lambda.js"),
     },
     eventSourceProps: {
       batchSize: 5,
@@ -124,7 +124,7 @@ test("should set multiple rules when ruleProps is an array", () => {
       },
     ],
     nodejsFunctionProps: {
-      entry: path.join(import.meta.dirname, "./mock/mock.lambda.js"),
+      entry: path.join(__dirname, "./mock/mock.lambda.js"),
     },
   });
 
@@ -182,7 +182,7 @@ test("should append .fifo to queues when fifo:true", () => {
       },
     },
     nodejsFunctionProps: {
-      entry: path.join(import.meta.dirname, "./mock/mock.lambda.js"),
+      entry: path.join(__dirname, "./mock/mock.lambda.js"),
     },
     deadLetterQueueProps: {
       fifo: true,

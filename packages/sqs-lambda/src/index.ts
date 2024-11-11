@@ -1,2 +1,2 @@
-export * from "./eventbridge.js";
-export * from "./scaling-aspect.js";
+export * from "./eventbridge";
+export * from "./scaling-aspect";

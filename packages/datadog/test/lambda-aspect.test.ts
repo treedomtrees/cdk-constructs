@@ -144,7 +144,7 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
   });
 });
 
-await test("should set DD_TAGS when specified in the constuct", (t) => {
+test("should set DD_TAGS when specified in the constuct", (t) => {
   const app = new cdk.App();
 
   const testStack = new cdk.Stack(app, "TestStack");
