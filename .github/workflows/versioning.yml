@@ -1,0 +1,55 @@
+name: Version Bump and Update
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Determine version bump
+        id: version_bump
+        run: |
+          LABELS=$(gh pr view ${{ github.event.pull_request.number }} --json labels --jq '.labels[].name')
+          if [[ "$LABELS" == *"major"* ]]; then
+            echo "bump=major" >> $GITHUB_ENV
+          elif [[ "$LABELS" == *"minor"* ]]; then
+            echo "bump=minor" >> $GITHUB_ENV
+          elif [[ "$LABELS" == *"patch"* ]]; then
+            echo "bump=patch" >> $GITHUB_ENV
+          else
+            echo "No version bump label found. Exiting."
+            exit 0
+          fi
+
+      - name: Bump version
+        run: |
+          npx npm --no-git-tag-version --workspaces version ${{ env.bump }}
+          npx npm version ${{ env.bump }}
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore: bump ${{ env.bump }} version" || echo "No changes to commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
