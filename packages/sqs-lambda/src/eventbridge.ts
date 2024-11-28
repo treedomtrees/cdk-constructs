@@ -32,7 +32,6 @@ export type EventBridgeSqsLambdaProps = {
       >;
   nodejsFunctionProps?: NodejsFunctionProps;
   eventSourceProps?: SqsEventSourceProps;
-  datadogArn?: string; // deprecated
 };
 
 export class EventBridgeSqsLambda extends Construct {
@@ -75,6 +74,7 @@ export class EventBridgeSqsLambda extends Construct {
     this.eventSource = new SqsEventSource(this.readQueue, {
       reportBatchItemFailures: true,
       maxConcurrency: 5,
+      batchSize: 10,
       ...props.eventSourceProps,
     });
 
@@ -82,10 +82,13 @@ export class EventBridgeSqsLambda extends Construct {
     if (Array.isArray(props.ruleProps)) {
       for (const rule of props.ruleProps) {
         const { ruleName, ...ruleProps } = rule;
-        this.addRule(`${props.envPrefix}-${ruleName}`, ruleProps);
+        this.addRule(ruleName, ruleProps);
       }
     } else {
-      this.addRule(`${props.envPrefix}-${id}Rule`, props.ruleProps);
+      this.addRule(`${id}Rule`, {
+        ruleName: `${props.envPrefix}-${id}Rule`,
+        ...props.ruleProps,
+      });
     }
 
     // Lambda
@@ -115,8 +118,8 @@ export class EventBridgeSqsLambda extends Construct {
 
   addRule(ruleName: string, ruleProps: EventBridgeSqsLambdaRuleProps) {
     const rule = new Rule(this, `${ruleName}Rule`, {
-      ...ruleProps,
       ruleName,
+      ...ruleProps,
     });
     rule.addTarget(new SqsQueue(this.readQueue));
 

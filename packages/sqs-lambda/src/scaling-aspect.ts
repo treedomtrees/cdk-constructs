@@ -1,5 +1,8 @@
 import { Annotations, IAspect } from "aws-cdk-lib";
-import * as lambda from "aws-cdk-lib/aws-lambda";
+import {
+  CfnEventSourceMapping,
+  EventSourceMapping,
+} from "aws-cdk-lib/aws-lambda";
 import { IConstruct } from "constructs";
 
 export type DatadogLambdaAspectProps = {
@@ -14,8 +17,8 @@ export class LambdaMaxScalingAspect implements IAspect {
   }
 
   public visit(node: IConstruct): void {
-    if (node instanceof lambda.EventSourceMapping) {
-      const cfn = node.node.defaultChild as lambda.CfnEventSourceMapping;
+    if (node instanceof EventSourceMapping) {
+      const cfn = node.node.defaultChild as CfnEventSourceMapping;
 
       const { scalingConfig = {} } = cfn;
 

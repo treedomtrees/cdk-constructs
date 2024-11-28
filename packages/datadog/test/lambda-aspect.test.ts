@@ -29,6 +29,7 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
       nodeLayerVersion: 115,
       extensionLayerVersion: 65,
       captureLambdaPayload: true,
+      sourceCodeIntegration: true,
       logLevel: "warn",
       service: "my-service",
       redirectHandler: false,

@@ -136,7 +136,7 @@ test("should set multiple rules when ruleProps is an array", () => {
       "detail-type": ["MyEvent"],
       detail: { foo: "bar" },
     },
-    Name: "mytest-MyRule1",
+    Name: "MyRule1",
     State: "ENABLED",
     Targets: [
       {
@@ -153,7 +153,7 @@ test("should set multiple rules when ruleProps is an array", () => {
       "detail-type": ["MyEvent2"],
       detail: { foo: "bar2" },
     },
-    Name: "mytest-MyRule2",
+    Name: "MyRule2",
     State: "ENABLED",
     Targets: [
       {
