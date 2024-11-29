@@ -8,6 +8,7 @@ on:
     
 jobs:
   publish:
+    name: Publish Release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,24 +18,24 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       
       - run: |
-          PACKAGE_NAME=$(echo "${{ github.ref }}" | sed -E "s:refs/tags/(.+)/v[^-]+$:\1:")
-          PACKAGE_VERSION=$(echo "${{ github.ref }}" | sed -E "s:refs/tags/.+/(v.+)$:\1:")
+          echo 'package_name=${{ github.ref }}'    | sed -E "s:refs/tags/(.+)/v.+$:\1:"  >> $GITHUB_ENV
+          echo 'package_version=${{ github.ref }}' | sed -E "s:refs/tags/.+/(v.+)$:\1:"  >> $GITHUB_ENV
 
       - name: Bumping version
-        run: npm version $PACKAGE_VERSION --workspace packages/$PACKAGE_NAME
+        run: npm version ${{ env.package_version }} --workspace packages/${{ env.package_name }}
       
       - name: Install dependencies
-        run: npm install
+        run: npm install --workspace packages/${{ env.package_name }}
 
-      - name: Check registry
-        run: npm publish --workspace packages/$PACKAGE_NAME --if-present --access public --dry-run 
-        
+      - name: Publish to registry
+        run: npm publish --workspace packages/${{ env.package_name }} --if-present --access public
+
       - name: Commit version 
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "chore: bump ${{ env.bump }} version" || echo "No changes to commit"
+          git commit -m "chore: bump ${{ env.package_name }} to version ${{ env.package_version }}" || echo "No changes to commit"
 
       - name: Push to main
         uses: ad-m/github-push-action@v0.8.0
@@ -43,6 +44,3 @@ jobs:
           branch: main
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-
-      - name: Publish to registry
-        run: npm publish --workspace packages/$PACKAGE_NAME --if-present --access public
