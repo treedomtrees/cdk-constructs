@@ -12,6 +12,10 @@
     "publish:check": "npm publish --dry-run",
     "test": "borp --coverage"
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/treedomtrees/cdk-constructs.git"

@@ -22,6 +22,10 @@
     "url": "https://github.com/treedomtrees/cdk-constructs/issues"
   },
   "homepage": "https://github.com/treedomtrees/cdk-constructs#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "dependencies": {
     "aws-cdk-lib": "^2.165.0",
     "constructs": "^10.4.2",

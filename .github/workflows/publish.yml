@@ -28,7 +28,7 @@ jobs:
         run: npm install --workspace packages/${{ env.package_name }}
 
       - name: Publish to registry
-        run: npm publish --workspace packages/${{ env.package_name }} --if-present --access public
+        run: npm publish --workspace packages/${{ env.package_name }} --if-present
 
       - name: Commit version 
         run: |
