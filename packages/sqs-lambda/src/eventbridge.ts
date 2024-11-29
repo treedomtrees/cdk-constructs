@@ -20,85 +20,28 @@ export type EventBridgeSqsLambdaRuleProps = Required<
   RuleProps;
 
 export type EventBridgeSqsLambdaProps = {
-  envPrefix: string;
-  deadLetterQueueProps?: QueueProps;
-  readQueueProps?: QueueProps & {
-    retryAttempts?: number;
-  };
-  ruleProps:
-    | EventBridgeSqsLambdaRuleProps
-    | Array<
-        EventBridgeSqsLambdaRuleProps & Required<Pick<RuleProps, "ruleName">>
-      >;
-  nodejsFunctionProps?: NodejsFunctionProps;
-  eventSourceProps?: SqsEventSourceProps;
+  queue?: QueueProps & { retryAttempts?: number };
+  queueDlq?: QueueProps;
+  rule?: EventBridgeSqsLambdaRuleProps;
+  rules?: Array<
+    EventBridgeSqsLambdaRuleProps & Required<Pick<RuleProps, "ruleName">>
+  >;
+  lambda: NodejsFunctionProps;
+  eventSource?: SqsEventSourceProps;
+  namesPrefix?: string;
 };
 
+export type EventBridgeSqsLambdaDefaults = Partial<
+  Omit<EventBridgeSqsLambdaProps, "rules">
+>;
+
 export class EventBridgeSqsLambda extends Construct {
-  public readonly deadLetterQueue: Queue;
-  public readonly readQueue: Queue;
-  public readonly eventSource: SqsEventSource;
-  public readonly rules: Array<Rule> = [];
-  public readonly lambda: NodejsFunction;
-
-  public readonly envPrefix: string;
-
-  constructor(scope: Construct, id: string, props: EventBridgeSqsLambdaProps) {
-    super(scope, id);
-
-    this.envPrefix = props.envPrefix;
-
-    // SQS Dead Letter Queue
-    this.deadLetterQueue = new Queue(this, `${id}DLQueue`, {
-      fifo: props.deadLetterQueueProps?.fifo, // Dead letter queues must be FIFO if the source queue is FIFO
-      queueName: `${props.envPrefix}-${id}DLQueue${
-        props.readQueueProps?.fifo ? ".fifo" : ""
-      }`, // AWS requires the .fifo suffix for FIFO queues
-      ...props.deadLetterQueueProps,
-    });
-
-    // SQS Queue
-    this.readQueue = new Queue(this, `${id}Queue`, {
-      queueName: `${props.envPrefix}-${id}Queue${
-        props.readQueueProps?.fifo ? ".fifo" : ""
-      }`, // AWS requires the .fifo suffix for FIFO queues
-      deadLetterQueue: {
-        queue: this.deadLetterQueue,
-        maxReceiveCount: props.readQueueProps?.retryAttempts ?? 10,
-        ...props.readQueueProps?.deadLetterQueue,
-      },
-      ...props.readQueueProps,
-    });
-
-    // SQS EventSource
-    this.eventSource = new SqsEventSource(this.readQueue, {
-      reportBatchItemFailures: true,
-      maxConcurrency: 5,
-      batchSize: 10,
-      ...props.eventSourceProps,
-    });
-
-    // EventBridge Rule
-    if (Array.isArray(props.ruleProps)) {
-      for (const rule of props.ruleProps) {
-        const { ruleName, ...ruleProps } = rule;
-        this.addRule(ruleName, ruleProps);
-      }
-    } else {
-      this.addRule(`${id}Rule`, {
-        ruleName: `${props.envPrefix}-${id}Rule`,
-        ...props.ruleProps,
-      });
-    }
-
-    // Lambda
-    this.lambda = new NodejsFunction(this, `${id}Lambda`, {
+  protected static defaults: EventBridgeSqsLambdaDefaults = {
+    lambda: {
       architecture: Architecture.ARM_64,
       runtime: Runtime.NODEJS_20_X,
 
-      functionName: `${props.envPrefix}-${id}Lambda`,
       logRetention: RetentionDays.THREE_MONTHS,
-      memorySize: 256,
 
       timeout: Duration.seconds(10),
 
@@ -107,24 +50,116 @@ export class EventBridgeSqsLambda extends Construct {
         externalModules: [],
         sourceMap: true,
       },
+    },
+    eventSource: {
+      maxConcurrency: 5,
+      reportBatchItemFailures: true,
+    },
+  };
 
-      ...props.nodejsFunctionProps,
+  public readonly queueDlq: Queue;
+  public readonly queue: Queue;
+  public readonly lambdaSource: SqsEventSource;
+  public readonly rules: Array<Rule> = [];
+  public readonly lambda: NodejsFunction;
+
+  public readonly namesPrefix?: string;
+
+  constructor(scope: Construct, id: string, props: EventBridgeSqsLambdaProps) {
+    super(scope, id);
+
+    this.namesPrefix = props.namesPrefix;
+
+    // SQS Dead Letter Queue
+    this.queueDlq = new Queue(this, `DLQueue`, {
+      ...EventBridgeSqsLambda.defaults.queueDlq,
+      queueName: this.getDefaultName(
+        this.getQueueName(`DLQueue`, props.queue?.fifo),
+      ),
+      fifo: props.queue?.fifo, // Dead letter queues must be FIFO if the source queue is FIFO
+      ...props.queueDlq,
+    });
+
+    // SQS Queue
+    this.queue = new Queue(this, `Queue`, {
+      ...EventBridgeSqsLambda.defaults.queue,
+      queueName: this.getDefaultName(
+        this.getQueueName(`Queue`, props.queue?.fifo),
+      ),
+      ...props.queue,
+      deadLetterQueue: {
+        queue: this.queueDlq,
+        maxReceiveCount: props.queue?.retryAttempts ?? 10,
+        ...props.queue?.deadLetterQueue,
+      },
+    });
+
+    // SQS EventSource
+    this.lambdaSource = new SqsEventSource(this.queue, {
+      ...EventBridgeSqsLambda.defaults.eventSource,
+      ...props.eventSource,
+    });
+
+    // EventBridge Rule
+    if (props.rules) {
+      for (const rule of props.rules) {
+        const { ruleName, ...ruleProps } = rule;
+        this.addRule(ruleName, ruleProps);
+      }
+    }
+
+    if (props.rule) {
+      this.addRule(`Rule`, {
+        ruleName: this.getDefaultName(`Rule`),
+        ...props.rule,
+      });
+    }
+
+    if (!this.rules) {
+      throw new Error("At least one rule must be specified");
+    }
+
+    // Lambda
+    this.lambda = new NodejsFunction(this, `Lambda`, {
+      ...EventBridgeSqsLambda.defaults.lambda,
+      functionName: this.getDefaultName(`Lambda`),
+      ...props.lambda,
     });
 
     this.lambda.addEnvironment("NODE_OPTIONS", "--enable-source-maps");
 
-    this.lambda.addEventSource(this.eventSource);
+    this.lambda.addEventSource(this.lambdaSource);
+  }
+
+  static setDefaults(defaultProps: EventBridgeSqsLambdaDefaults) {
+    EventBridgeSqsLambda.defaults = defaultProps;
   }
 
   addRule(ruleName: string, ruleProps: EventBridgeSqsLambdaRuleProps) {
     const rule = new Rule(this, `${ruleName}Rule`, {
+      ...EventBridgeSqsLambda.defaults.rule,
       ruleName,
       ...ruleProps,
     });
-    rule.addTarget(new SqsQueue(this.readQueue));
+    rule.addTarget(new SqsQueue(this.queue));
 
     this.rules.push(rule);
 
     return rule;
+  }
+
+  getDefaultName(name: string) {
+    const nameSuffix = `${this.node.id}${name}`;
+
+    if (this.namesPrefix) {
+      return `${this.namesPrefix}-${nameSuffix}`;
+    }
+
+    return nameSuffix;
+  }
+
+  getQueueName(name: string, fifo = false) {
+    // AWS requires the .fifo suffix for FIFO queues
+    return fifo ? `${name}.fifo` : name;
   }
 }

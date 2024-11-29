@@ -13,8 +13,8 @@ test("should set all required resources", () => {
   const testStack = new cdk.Stack(app, "TestStack");
 
   new EventBridgeSqsLambda(testStack, "TestConstruct", {
-    envPrefix: "mytest",
-    ruleProps: {
+    namesPrefix: "mytest",
+    rule: {
       eventBus: EventBus.fromEventBusName(testStack, "EventBus", `mybus`),
       eventPattern: {
         detailType: ["MyEvent"],
@@ -23,16 +23,16 @@ test("should set all required resources", () => {
         },
       },
     },
-    readQueueProps: {
+    queue: {
       retryAttempts: 17,
     },
-    deadLetterQueueProps: {
+    queueDlq: {
       visibilityTimeout: cdk.Duration.seconds(10),
     },
-    nodejsFunctionProps: {
+    lambda: {
       entry: path.join(__dirname, "./mock/mock.lambda.js"),
     },
-    eventSourceProps: {
+    eventSource: {
       batchSize: 5,
     },
   });
@@ -43,7 +43,6 @@ test("should set all required resources", () => {
     FunctionName: "mytest-TestConstructLambda",
     Runtime: Match.stringLikeRegexp("nodejs"),
     Timeout: 10,
-    MemorySize: 256,
     Environment: {
       Variables: {
         NODE_OPTIONS: "--enable-source-maps",
@@ -75,7 +74,7 @@ test("should set all required resources", () => {
     Targets: [
       {
         Arn: {
-          "Fn::GetAtt": ["TestConstructTestConstructQueue8E078832", "Arn"],
+          "Fn::GetAtt": ["TestConstructQueue447D1F58", "Arn"],
         },
       },
     ],
@@ -83,9 +82,9 @@ test("should set all required resources", () => {
 
   template.hasResourceProperties("AWS::Lambda::EventSourceMapping", {
     EventSourceArn: {
-      "Fn::GetAtt": ["TestConstructTestConstructQueue8E078832", "Arn"],
+      "Fn::GetAtt": ["TestConstructQueue447D1F58", "Arn"],
     },
-    FunctionName: { Ref: "TestConstructTestConstructLambdaB5C5F6AB" },
+    FunctionName: { Ref: "TestConstructLambda95D80924" },
     FunctionResponseTypes: ["ReportBatchItemFailures"],
     ScalingConfig: { MaximumConcurrency: 5 },
     BatchSize: 5,
@@ -100,8 +99,8 @@ test("should set multiple rules when ruleProps is an array", () => {
   const eventBus = EventBus.fromEventBusName(testStack, "EventBus", `mybus`);
 
   new EventBridgeSqsLambda(testStack, "TestConstruct", {
-    envPrefix: "mytest",
-    ruleProps: [
+    namesPrefix: "mytest",
+    rules: [
       {
         ruleName: "MyRule1",
         eventBus,
@@ -123,7 +122,7 @@ test("should set multiple rules when ruleProps is an array", () => {
         },
       },
     ],
-    nodejsFunctionProps: {
+    lambda: {
       entry: path.join(__dirname, "./mock/mock.lambda.js"),
     },
   });
@@ -141,7 +140,7 @@ test("should set multiple rules when ruleProps is an array", () => {
     Targets: [
       {
         Arn: {
-          "Fn::GetAtt": ["TestConstructTestConstructQueue8E078832", "Arn"],
+          "Fn::GetAtt": ["TestConstructQueue447D1F58", "Arn"],
         },
       },
     ],
@@ -158,7 +157,7 @@ test("should set multiple rules when ruleProps is an array", () => {
     Targets: [
       {
         Arn: {
-          "Fn::GetAtt": ["TestConstructTestConstructQueue8E078832", "Arn"],
+          "Fn::GetAtt": ["TestConstructQueue447D1F58", "Arn"],
         },
       },
     ],
@@ -171,8 +170,8 @@ test("should append .fifo to queues when fifo:true", () => {
   const testStack = new cdk.Stack(app, "TestStack");
 
   new EventBridgeSqsLambda(testStack, "TestConstruct", {
-    envPrefix: "mytest",
-    ruleProps: {
+    namesPrefix: "mytest",
+    rule: {
       eventBus: EventBus.fromEventBusName(testStack, "EventBus", `mybus`),
       eventPattern: {
         detailType: ["MyEvent"],
@@ -181,13 +180,13 @@ test("should append .fifo to queues when fifo:true", () => {
         },
       },
     },
-    nodejsFunctionProps: {
+    lambda: {
       entry: path.join(__dirname, "./mock/mock.lambda.js"),
     },
-    deadLetterQueueProps: {
+    queueDlq: {
       fifo: true,
     },
-    readQueueProps: {
+    queue: {
       fifo: true,
     },
   });
