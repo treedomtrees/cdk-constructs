@@ -28,7 +28,9 @@ jobs:
         run: npm install --workspace packages/${{ env.package_name }}
 
       - name: Publish to registry
-        run: npm publish --workspace packages/${{ env.package_name }} --if-present
+        run: npm publish --workspace packages/${{ env.package_name }} --if-present --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.TREEDOM_NPMJS_TOKEN }}
 
       - name: Commit version 
         run: |
@@ -42,5 +44,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: main
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.TREEDOM_NPMJS_TOKEN }}
