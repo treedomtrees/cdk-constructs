@@ -73,6 +73,12 @@ Note: Build and test scripts are package-specific. Refer to individual package.j
 
 Ensure you have the necessary permissions to publish to the @treedom organization on npm.
 
+## Packages Release
+
+To release a new package version, create a release and tag it with a tag following the format: `package/vX.X.X`. Examples `sqs-lambda/v1.0.0`. The new tag creation will trigger this [pipeline](https://github.com/treedomtrees/cdk-constructs/blob/main/.github/workflows/publish.yml)
+
+You can use this link to have a release template: [RELEASE TEMPLATE](https://github.com/treedomtrees/cdk-constructs/releases/new?tag=packageName/v0.0.0&title=packageName+v0.0.0)
+
 ## Versioning
 
 We use [Semantic Versioning](https://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/treedomtrees/cdk-constructs/tags).
