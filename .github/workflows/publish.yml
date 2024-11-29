@@ -1,4 +1,4 @@
-# Deploy to mypackage/v1.1.1
+# Publish to NPM if a new tag with format [mypackage/v1.1.1] is created
 name: Publish package to registry
 on:
   push:
