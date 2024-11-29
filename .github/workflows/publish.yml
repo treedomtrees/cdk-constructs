@@ -43,4 +43,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: main
         env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.TREEDOM_NPMJS_TOKEN }}
