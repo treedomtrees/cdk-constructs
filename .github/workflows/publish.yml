@@ -15,8 +15,8 @@ jobs:
         with:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: PACKAGE_NAME=$(echo "${{ github.ref }}" | sed -E "s:refs/tags/(.+)-v[^-]+$:\1:")
-      - run: PACKAGE_VERSION=$(echo "${{ github.ref }}" | sed -E "s:refs/tags/.+-(v.+)$:\1:")
+      - run: PACKAGE_NAME=$(echo "${{ github.ref }}" | sed -E "s:refs/tags/(.+)/v[^-]+$:\1:")
+      - run: PACKAGE_VERSION=$(echo "${{ github.ref }}" | sed -E "s:refs/tags/.+/(v.+)$:\1:")
       - run: npm version $PACKAGE_VERSION --workspace packages/$PACKAGE_NAME
       - run: npm install --workspace packages/$PACKAGE_NAME
       - run: npm publish --workspace packages/$PACKAGE_NAME --if-present --access public
