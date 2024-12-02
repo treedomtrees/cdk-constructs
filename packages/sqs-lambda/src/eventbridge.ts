@@ -14,25 +14,28 @@ import {
 } from "aws-cdk-lib/aws-lambda-event-sources";
 import { Duration } from "aws-cdk-lib";
 
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
 export type EventBridgeSqsLambdaRuleProps = Required<
-  Pick<RuleProps, "eventBus" | "eventPattern">
+  Pick<RuleProps, "eventBus" | "eventPattern" | "ruleName">
 > &
   RuleProps;
 
 export type EventBridgeSqsLambdaProps = {
   queue?: QueueProps & { retryAttempts?: number };
   queueDlq?: QueueProps;
-  rule?: EventBridgeSqsLambdaRuleProps;
-  rules?: Array<
-    EventBridgeSqsLambdaRuleProps & Required<Pick<RuleProps, "ruleName">>
-  >;
-  lambda: NodejsFunctionProps;
+  rules?: Array<EventBridgeSqsLambdaRuleProps>;
+  lambda?: NodejsFunctionProps;
   eventSource?: SqsEventSourceProps;
   namesPrefix?: string;
 };
 
-export type EventBridgeSqsLambdaDefaults = Partial<
-  Omit<EventBridgeSqsLambdaProps, "rules">
+export type EventBridgeSqsLambdaDefaults = DeepPartial<
+  Omit<EventBridgeSqsLambdaProps, "rules"> & {
+    rules: EventBridgeSqsLambdaRuleProps;
+  }
 >;
 
 export class EventBridgeSqsLambda extends Construct {
@@ -68,7 +71,8 @@ export class EventBridgeSqsLambda extends Construct {
   constructor(scope: Construct, id: string, props: EventBridgeSqsLambdaProps) {
     super(scope, id);
 
-    this.namesPrefix = props.namesPrefix;
+    this.namesPrefix =
+      props.namesPrefix || EventBridgeSqsLambda.defaults.namesPrefix;
 
     // SQS Dead Letter Queue
     this.queueDlq = new Queue(this, `DLQueue`, {
@@ -88,6 +92,7 @@ export class EventBridgeSqsLambda extends Construct {
       ),
       ...props.queue,
       deadLetterQueue: {
+        ...EventBridgeSqsLambda.defaults.queue?.deadLetterQueue,
         queue: this.queueDlq,
         maxReceiveCount: props.queue?.retryAttempts ?? 10,
         ...props.queue?.deadLetterQueue,
@@ -100,23 +105,13 @@ export class EventBridgeSqsLambda extends Construct {
       ...props.eventSource,
     });
 
-    // EventBridge Rule
-    if (props.rules) {
-      for (const rule of props.rules) {
-        const { ruleName, ...ruleProps } = rule;
-        this.addRule(ruleName, ruleProps);
-      }
-    }
-
-    if (props.rule) {
-      this.addRule(`Rule`, {
-        ruleName: this.getDefaultName(`Rule`),
-        ...props.rule,
-      });
-    }
-
-    if (!this.rules) {
+    if (!props.rules || props.rules.length < 1) {
       throw new Error("At least one rule must be specified");
+    }
+
+    // EventBridge Rule
+    for (const rule of props.rules) {
+      this.addRule(rule);
     }
 
     // Lambda
@@ -135,11 +130,17 @@ export class EventBridgeSqsLambda extends Construct {
     EventBridgeSqsLambda.defaults = defaultProps;
   }
 
-  addRule(ruleName: string, ruleProps: EventBridgeSqsLambdaRuleProps) {
-    const rule = new Rule(this, `${ruleName}Rule`, {
-      ...EventBridgeSqsLambda.defaults.rule,
-      ruleName,
-      ...ruleProps,
+  static getDefaults() {
+    return EventBridgeSqsLambda.defaults;
+  }
+
+  addRule(ruleProps: EventBridgeSqsLambdaRuleProps) {
+    const { ruleName, ...ruleOpts } = ruleProps;
+
+    const rule = new Rule(this, ruleName, {
+      ...EventBridgeSqsLambda.defaults.rules,
+      ruleName: this.getDefaultName(ruleName),
+      ...ruleOpts,
     });
     rule.addTarget(new SqsQueue(this.queue));
 
