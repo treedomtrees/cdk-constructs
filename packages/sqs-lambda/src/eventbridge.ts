@@ -13,10 +13,7 @@ import {
   SqsEventSourceProps,
 } from "aws-cdk-lib/aws-lambda-event-sources";
 import { Duration } from "aws-cdk-lib";
-
-type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
-};
+import { DeepPartial } from "./types";
 
 export type EventBridgeSqsLambdaRuleProps = Required<
   Pick<RuleProps, "eventBus" | "eventPattern" | "ruleName">
