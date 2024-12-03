@@ -5,24 +5,28 @@ import { DatadogLambda } from "datadog-cdk-constructs-v2";
 
 export type DatadogLambdaAspectProps = {
   datadog: DatadogLambda;
+  extensionVersion?: "next";
 };
 
-export class AddDatadogToLambdas implements IAspect {
+export class AddDatadogToLambdasAspect implements IAspect {
   public readonly datadog: DatadogLambda;
+  public readonly extensionVersion: DatadogLambdaAspectProps["extensionVersion"];
 
   constructor(props: DatadogLambdaAspectProps) {
     this.datadog = props.datadog;
+    this.extensionVersion = props.extensionVersion;
   }
 
   public visit(node: IConstruct): void {
     // See that we're dealing with a CfnBucket
     if (node instanceof lambda.Function) {
       const lambda = node;
-      // Check for versioning property, exclude the case where the property
-      // can be a token (IResolvable).
-      lambda.addEnvironment("DD_EXTENSION_VERSION", "next");
 
-      // If no extension is set, this envs are not set
+      if (this.extensionVersion) {
+        lambda.addEnvironment("DD_EXTENSION_VERSION", this.extensionVersion);
+      }
+
+      // If no extension is set, this envs are not automatically set by Datadog Construct
       if (!this.datadog.props.extensionLayerVersion) {
         lambda.addEnvironment("DD_VERSION", lambda.currentVersion.toString());
 
