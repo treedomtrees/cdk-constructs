@@ -5,7 +5,7 @@ import * as cdk from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { DatadogLambda } from "datadog-cdk-constructs-v2";
 
-import { AddDatadogToLambdas } from "../src/lambda-aspect.js";
+import { AddDatadogToLambdasAspect } from "../src/lambda-aspect.js";
 
 test("should set envs and layers to all lambdas in stack", async (t) => {
   await t.test("when extensionLayerVersion is true", (t) => {
@@ -35,7 +35,9 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
       redirectHandler: false,
     });
 
-    cdk.Aspects.of(app).add(new AddDatadogToLambdas({ datadog }));
+    cdk.Aspects.of(app).add(
+      new AddDatadogToLambdasAspect({ datadog, extensionVersion: "next" }),
+    );
 
     // Prepare the stack for assertions.
     const template = Template.fromStack(testStack);
@@ -107,7 +109,7 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
       redirectHandler: false,
     });
 
-    cdk.Aspects.of(app).add(new AddDatadogToLambdas({ datadog }));
+    cdk.Aspects.of(app).add(new AddDatadogToLambdasAspect({ datadog }));
 
     // Prepare the stack for assertions.
     const template = Template.fromStack(testStack);
@@ -130,7 +132,7 @@ test("should set envs and layers to all lambdas in stack", async (t) => {
       ],
       Environment: {
         Variables: {
-          DD_EXTENSION_VERSION: "next",
+          DD_EXTENSION_VERSION: Match.absent(),
           DD_CAPTURE_LAMBDA_PAYLOAD: "true",
           DD_LOG_LEVEL: "warn",
           DD_ENV: "test",
@@ -171,7 +173,7 @@ test("should set DD_TAGS when specified in the constuct", (t) => {
     tags: "dd-tag1,dd-tag2",
   });
 
-  cdk.Aspects.of(app).add(new AddDatadogToLambdas({ datadog }));
+  cdk.Aspects.of(app).add(new AddDatadogToLambdasAspect({ datadog }));
 
   // Prepare the stack for assertions.
   const template = Template.fromStack(testStack);

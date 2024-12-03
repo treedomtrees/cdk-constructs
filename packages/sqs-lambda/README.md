@@ -71,16 +71,16 @@ class MyStack extends Stack {
 
 The `EventBridgeSqsLambdaProps` interface includes the following properties:
 
-- `envPrefix`: A string used as a prefix for naming resources.
-- `deadLetterQueueProps`: (Optional) Properties for the dead-letter queue.
-- `readQueueProps`: (Optional) Properties for the main SQS queue, including an optional `retryAttempts` number.
-- `ruleProps`: Properties for the EventBridge rule(s).
-- `nodejsFunctionProps`: (Optional) Properties for the NodeJS Lambda function.
-- `eventSourceProps`: (Optional) Properties for the SQS event source.
+- `queue`: (Optional) Properties for the main SQS queue, including an optional `retryAttempts` number.
+- `queueDlq`: (Optional) Properties for the dead-letter queue.
+- `rules`: (Optional) Array of EventBridge rules configuration.
+- `lambda`: (Optional) Properties for the NodeJS Lambda function.
+- `eventSource`: (Optional) Properties for the SQS event source.
+- `namesPrefix`: (Optional) A string used as a prefix for naming resources.
 
 ### LambdaMaxScalingAspect
 
-This class implements the `IAspect` interface and can be used to verify if some lambdas exceeds the maximum scaling specified. If the limit is exceeded an error Annotation on the lambda will be emitted.
+This class implements the `IAspect` interface and can be used to verify if some lambdas exceed the maximum allowed concurrency. Default maximum concurrency is 10 if not specified. maximum scaling specified. If the limit is exceeded an error Annotation on the lambda will be emitted.
 
 #### Usage
 

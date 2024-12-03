@@ -12,21 +12,32 @@ npm install @treedom/cdk-constructs-datadog
 
 ## Usage
 
-This package exports an `AddDatadogToLambdas` aspect that can be used to automatically add Datadog monitoring to Lambda functions in your CDK stack.
+This package exports an `AddDatadogToLambdasAspect` aspect that can be used to automatically add Datadog monitoring to Lambda functions in your CDK stack.
 
 ```typescript
 import { Aspects } from 'aws-cdk-lib';
-import { AddDatadogToLambdas } from '@treedom/cdk-constructs-datadog';
+import { AddDatadogToLambdasAspect } from '@treedom/cdk-constructs-datadog';
 import { DatadogLambda } from 'datadog-cdk-constructs-v2';
 
 // Create a DatadogLambda instance
 const datadogLambda = new DatadogLambda(this, 'DatadogLambda', {
   // Configure your Datadog Lambda as needed
+    site: "datadoghq.eu",
+    apiKeySecretArn: "arn:my-arn",
+    env: "test",
+    nodeLayerVersion: 115,
+    extensionLayerVersion: 65,
+    captureLambdaPayload: true,
+    sourceCodeIntegration: true,
+    logLevel: "warn",
+    service: "my-service",
+    redirectHandler: false,<>
 });
 
 // Create the AddDatadogToLambdas aspect
-const datadogAspect = new AddDatadogToLambdas('DatadogAspect', {
+const datadogAspect = new AddDatadogToLambdasAspect({
   datadog: datadogLambda,
+  extensionVersion: "next" 
 });
 
 // Apply the aspect to your stack
