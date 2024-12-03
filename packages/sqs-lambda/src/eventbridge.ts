@@ -117,7 +117,7 @@ export class EventBridgeSqsLambda extends Construct {
   }
 
   addRule(ruleName: string, ruleProps: EventBridgeSqsLambdaRuleProps) {
-    const rule = new Rule(this, `${ruleName}Rule`, {
+    const rule = new Rule(this, ruleName, {
       ruleName,
       ...ruleProps,
     });
