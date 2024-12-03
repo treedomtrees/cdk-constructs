@@ -1,6 +1,6 @@
 {
   "name": "@treedom/cdk-constructs-sqs-lambda",
-  "version": "0.0.2-beta",
+  "version": "1.0.0",
   "main": "lib/index.js",
   "files": [
     "./lib"
